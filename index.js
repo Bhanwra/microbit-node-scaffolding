@@ -22,6 +22,7 @@ SerialPort.list()
     .then(ports => {
         ports.forEach(port => {
             if ( port.manufacturer == "Microsoft" && port.productId == "0204" ) {
+                console.log(port)
                 // __microbit_located__
                 const microbitPort = new SerialPort(port.path, {
                     baudRate: 115200,
@@ -33,8 +34,6 @@ SerialPort.list()
                 microbitPort.open(() => {
                     console.log("Port open");
                     parser.on('data', (data) => {
-                        console.log('Received Data: ' + data.toString());
-
                         io.emit("action", data)
                     });
                 })

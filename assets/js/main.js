@@ -19,4 +19,8 @@ socket.on("action", (arg) => {
     if ( arg.indexOf("right") == 0 ) {
         block.style.transform = "translateX(25rem)"
     } 
+
+    if ( arg.indexOf("center") == 0 ) {
+        block.style.transform = ""
+    } 
 })
