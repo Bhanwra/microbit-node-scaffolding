@@ -14,17 +14,30 @@ const io = require('socket.io')(server)
 const SerialPort = require('serialport')
 const Readline = SerialPort.parsers.Readline
 
+let microbitPort = null
+
 io.on("connection", (socket) => {
     console.log(socket.connected)
+    
+    socket.on("output", (data) => {
+        console.log(`Sending data to bit [status: ${microbitPort.isOpen}]: ${data}`)
+    
+        if ( microbitPort.isOpen ) {
+            let output = microbitPort.write(data+"\n", 'ascii')
+    
+            console.log(`output: ${output}`)
+        }
+    })
 })
+
 
 SerialPort.list()
     .then(ports => {
         ports.forEach(port => {
-            if ( port.manufacturer == "Microsoft" && port.productId == "0204" ) {
+            if ( (port.vendorId == "0D28" || port.vendorId == "0d28") && port.productId == "0204" ) {
                 console.log(port)
                 // __microbit_located__
-                const microbitPort = new SerialPort(port.path, {
+                microbitPort = new SerialPort(port.path, {
                     baudRate: 115200,
                     autoOpen: false
                 })
@@ -37,6 +50,8 @@ SerialPort.list()
                         io.emit("action", data)
                     });
                 })
+
+                microbitPort.write("X\n")
             }
         })
     })

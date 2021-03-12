@@ -2,6 +2,10 @@ const socket = io()
 
 let block = document.getElementById("block")
 
+block.addEventListener("click", (ev) => {
+    socket.emit("output", "music")
+})
+
 socket.on("action", (arg) => {
 
     if ( arg.indexOf("up") == 0 ) {
@@ -22,5 +26,5 @@ socket.on("action", (arg) => {
 
     if ( arg.indexOf("center") == 0 ) {
         block.style.transform = ""
-    } 
+    }
 })

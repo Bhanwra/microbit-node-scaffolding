@@ -26,4 +26,10 @@
     display: inline-block;
     background-color: orange;
     transition: cubic-bezier(0.68, -0.55, 0.265, 1.55) 150ms;
+    cursor: pointer;
+    box-shadow: #0005 0 0 5px 0;
+}
+
+.block:hover {
+    background-color: darkorange;
 }
