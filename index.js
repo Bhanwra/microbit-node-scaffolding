@@ -3,59 +3,52 @@ const http = require('http')
 const hostname = '127.0.0.1'
 const port = '3000'
 
-const fs = require('fs')
+const express = require("express")
+const app = express()
+const server = http.createServer(app)
 
+const path = require('path')
+
+const io = require('socket.io')(server)
 
 const SerialPort = require('serialport')
 const Readline = SerialPort.parsers.Readline
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200
-    res.setHeader('Content-Type', 'text/html')
+io.on("connection", (socket) => {
+    console.log(socket.connected)
+})
 
-    SerialPort.list()
-        .then(ports => {
+SerialPort.list()
+    .then(ports => {
+        ports.forEach(port => {
+            if ( port.manufacturer == "Microsoft" && port.productId == "0204" ) {
+                // __microbit_located__
+                const microbitPort = new SerialPort(port.path, {
+                    baudRate: 115200,
+                    autoOpen: false
+                })
+                const parser = new Readline();
+                microbitPort.pipe(parser);
+            
+                microbitPort.open(() => {
+                    console.log("Port open");
+                    parser.on('data', (data) => {
+                        console.log('Received Data: ' + data.toString());
 
-            let output = ''
-
-            ports.forEach(port => {
-
-                if ( port.manufacturer == "Microsoft" && port.productId == "0204" ) {
-                    // is the microbit
-                    output += JSON.stringify(port)
-
-                    const microbitPort = new SerialPort(port.path, {
-                        baudRate: 115200,
-                        autoOpen: false
-                    })
-                    const parser = new Readline();
-                    microbitPort.pipe(parser);
-                    
-                    microbitPort.open(() => {
-                        console.log("Port open");
-                        parser.on('data', (data) => {
-                            console.log('Received Data: ' + data.toString());
-                        });
-                    })
-                }
-
-            })
+                        io.emit("action", data)
+                    });
+                })
+            }
         })
-        .catch(err => {
-            if ( err ) throw err
-            res.end(err)
-        })
-
-    fs.readFile('./index.html', (err, data) => {
-        if ( err ) {
-            res.statusCode(404)
-            res.write(err)
-        } else {
-            res.write(data)
-        }
-
-        res.end()
     })
+    .catch(err => {
+
+    })
+
+app.use(express.static(path.join(__dirname, 'assets')))
+
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'))
 })
 
 server.listen(port, hostname, () => {

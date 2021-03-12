@@ -1,0 +1,29 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.grid {
+    position: fixed;
+    margin: auto;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 90%;
+    height: 90%;
+    box-shadow: #0005 0 0 5px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: seagreen;
+}
+
+.block {
+    width: 10rem;
+    height: 10rem;
+    display: inline-block;
+    background-color: orange;
+    transition: cubic-bezier(0.68, -0.55, 0.265, 1.55) 150ms;
+}
